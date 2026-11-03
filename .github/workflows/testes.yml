@@ -16,3 +16,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps
       - run: npx playwright test
+      - uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-playwright
+          path: playwright-report/
+          retention-days: 7
