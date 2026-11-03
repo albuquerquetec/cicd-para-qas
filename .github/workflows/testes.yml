@@ -21,3 +21,24 @@ jobs:
           name: relatorio-playwright
           path: playwright-report/
           retention-days: 7
+      - name: Compactar relatorio
+        if: failure()
+        run: |
+          if [ -d playwright-report ]; then
+            tar -czf relatorio-playwright.tar.gz playwright-report
+          fi
+      - name: Enviar relatorio por e-mail
+        if: failure() && hashFiles('relatorio-playwright.tar.gz') != ''
+        uses: dawidd6/action-send-mail@v24
+        with:
+          server_address: smtp-mail.outlook.com
+          server_port: 587
+          secure: false
+          require_tls: true
+          username: ${{ secrets.EMAIL_USUARIO }}
+          password: ${{ secrets.EMAIL_SENHA }}
+          from: Anderson Albuquerque <albuquerque.tec@outlook.com>
+          to: albuquerque.tec@outlook.com
+          subject: Falha na pipeline ${{ github.sha }}
+          body: A execucao falhou. O relatorio segue em anexo.
+          attachments: relatorio-playwright.tar.gz
